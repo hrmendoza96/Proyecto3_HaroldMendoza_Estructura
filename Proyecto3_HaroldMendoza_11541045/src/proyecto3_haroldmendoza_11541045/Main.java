@@ -78,8 +78,18 @@ public class Main extends javax.swing.JFrame {
         jLabel3.setText("Busqueda de Vuelo:");
 
         cb_CiudadEntrada.setEnabled(false);
+        cb_CiudadEntrada.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cb_CiudadEntradaItemStateChanged(evt);
+            }
+        });
 
         cb_CiudadSalida.setEnabled(false);
+        cb_CiudadSalida.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cb_CiudadSalidaItemStateChanged(evt);
+            }
+        });
 
         jMenuBar1.setBorder(null);
 
@@ -202,7 +212,12 @@ public class Main extends javax.swing.JFrame {
                     rutas.addEdge(node_Salida.getId()+node_Entrada.getId(), node_Salida, node_Entrada, true);
                     rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
                             " PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
-                }   
+                } 
+                if(rutas.getEdge(node_Entrada.getId()+node_Salida.getId())==null){
+                    rutas.addEdge(node_Entrada.getId()+node_Salida.getId(), node_Entrada, node_Salida, true);
+                    rutas.getEdge(node_Entrada.getId()+node_Salida.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
+                            " PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
+                } 
             } catch (Exception e) {
             }
 
@@ -211,10 +226,20 @@ public class Main extends javax.swing.JFrame {
         //Make Enabled los botones y combo box
         this.VerRutas.setEnabled(true);
         this.CargarVuelos.setEnabled(false);
-        this.b_VueloBarato.setEnabled(true);
-        this.b_VueloCorto.setEnabled(true);
         this.cb_CiudadEntrada.setEnabled(true);
         this.cb_CiudadSalida.setEnabled(true);
+        
+        for (Vuelo temp : Lista_Vuelos) {
+            if(!Lista_Ciudades.contains(temp.getCiudad_Salida())){
+                Lista_Ciudades.add(temp.getCiudad_Salida());
+            }else if(!Lista_Ciudades.contains(temp.getCiudad_Entrada())){
+                Lista_Ciudades.add(temp.getCiudad_Entrada());
+            }  
+        }
+        for (String temp : Lista_Ciudades) { //agregar lista de ciudades al combo box
+            cb_CiudadSalida.addItem(temp);
+            cb_CiudadEntrada.addItem(temp);
+        }
     }//GEN-LAST:event_CargarVuelosActionPerformed
 
     private void VerRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VerRutasActionPerformed
@@ -222,6 +247,24 @@ public class Main extends javax.swing.JFrame {
         Viewer viewer = rutas.display();
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
     }//GEN-LAST:event_VerRutasActionPerformed
+
+    private void cb_CiudadSalidaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cb_CiudadSalidaItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == 2) {
+            String s =  (String) cb_CiudadSalida.getSelectedItem();
+            nodoC1 = rutas.getNode(s);
+            verificarCiudades();
+        }
+    }//GEN-LAST:event_cb_CiudadSalidaItemStateChanged
+
+    private void cb_CiudadEntradaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cb_CiudadEntradaItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == 2) {
+            String s =  (String) cb_CiudadEntrada.getSelectedItem();
+            nodoC2 = rutas.getNode(s);
+            verificarCiudades();
+        }
+    }//GEN-LAST:event_cb_CiudadEntradaItemStateChanged
 
     /**
      * @param args the command line arguments
@@ -277,6 +320,23 @@ public class Main extends javax.swing.JFrame {
      */
     Graph rutas = new SingleGraph("Rutas Aereas");
     ArrayList<Vuelo> Lista_Vuelos = new ArrayList();
+    ArrayList<String> Lista_Ciudades = new ArrayList();
+    
+    Node nodoC1=null;
+    Node nodoC2=null;
+    
+    public void verificarCiudades(){
+        if(nodoC1!=null && nodoC2!=null){
+            if(nodoC1!=nodoC2){
+                this.b_VueloBarato.setEnabled(true);
+                this.b_VueloCorto.setEnabled(true);
+            }else{
+                this.b_VueloBarato.setEnabled(false);
+                this.b_VueloCorto.setEnabled(false);
+            }
+        }
+    }
+    
 
 
 }
