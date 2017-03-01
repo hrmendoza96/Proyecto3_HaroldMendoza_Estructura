@@ -9,8 +9,14 @@ package proyecto3_haroldmendoza_11541045;
  *
  * @author Harold Mendoza
  */
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Scanner;
+import javax.swing.JOptionPane;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 
 public class Main extends javax.swing.JFrame {
     
@@ -20,14 +26,18 @@ public class Main extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.setTitle("Proyecto 3: Rutas Aereas por Harold Mendoza");
+        
        // this.setExtendedState(MAXIMIZED_BOTH); 
+       /*
         rutas.addNode("A");
 	rutas.addNode("B");
 	rutas.addNode("C");
-	rutas.addEdge("AB", "A", "B");
-	rutas.addEdge("BC", "B", "C");
-	rutas.addEdge("CA", "C", "A");
-        rutas.display();
+	rutas.addEdge("AB", "A", "B", true);
+        rutas.addEdge("BA", "B", "A", true);
+	rutas.addEdge("BC", "B", "C", true);
+	rutas.addEdge("CA", "C", "A", true);
+       */
+       // rutas.display();
        
     }
 
@@ -59,23 +69,37 @@ public class Main extends javax.swing.JFrame {
         jLabel2.setText("Ciudad de Entrada:");
 
         b_VueloCorto.setText("Vuelo mas Corto");
+        b_VueloCorto.setAutoscrolls(true);
+        b_VueloCorto.setEnabled(false);
 
         b_VueloBarato.setText("Vuelo mas Barato");
+        b_VueloBarato.setEnabled(false);
 
         jLabel3.setText("Busqueda de Vuelo:");
 
-        cb_CiudadEntrada.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cb_CiudadEntrada.setEnabled(false);
 
-        cb_CiudadSalida.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cb_CiudadSalida.setEnabled(false);
 
         jMenuBar1.setBorder(null);
 
         jMenu1.setText("File");
 
         CargarVuelos.setText("Cargar Rutas de Vuelos");
+        CargarVuelos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CargarVuelosActionPerformed(evt);
+            }
+        });
         jMenu1.add(CargarVuelos);
 
         VerRutas.setText("Ver Rutas");
+        VerRutas.setEnabled(false);
+        VerRutas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VerRutasActionPerformed(evt);
+            }
+        });
         jMenu1.add(VerRutas);
 
         jMenuBar1.add(jMenu1);
@@ -132,6 +156,73 @@ public class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void CargarVuelosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CargarVuelosActionPerformed
+        // TODO add your handling code here:
+        Scanner sc = null; 
+        File archivo = new File("./Rutas.txt");
+        try {
+            sc = new Scanner(archivo); 
+            String line;
+            while(sc.hasNextLine()){
+                try {
+                    line=sc.nextLine();
+                    Scanner sc2 = new Scanner(line);
+                    sc2.useDelimiter(",");
+                    while(sc2.hasNext()){
+                        Lista_Vuelos.add(new Vuelo(sc2.next(),sc2.next(),sc2.next(),sc2.next(), sc2.next()));
+                       System.out.println(Lista_Vuelos.get(Lista_Vuelos.size()-1).toString());
+                    } // fin while interno  
+                } catch (Exception e) {
+                    System.out.println("Error while interno");
+                }                           
+            } // fin del while
+        } catch (Exception e) {
+        } finally{
+            sc.close(); 
+        }
+        for (Vuelo temp : Lista_Vuelos) { //agrega los vuelos al grafo
+            Node node_Salida=null;
+            Node node_Entrada=null;
+            try {
+                if(rutas.getNode(temp.getCiudad_Salida())==null){
+                    rutas.addNode(temp.getCiudad_Salida());
+                    node_Salida = rutas.getNode(temp.getCiudad_Salida());
+                    node_Salida.addAttribute("ui.label", temp.getCiudad_Salida());
+                }else{
+                    node_Salida = rutas.getNode(temp.getCiudad_Salida());
+                }
+                if(rutas.getNode(temp.getCiudad_Entrada())==null){
+                    rutas.addNode(temp.getCiudad_Entrada());
+                    node_Entrada = rutas.getNode(temp.getCiudad_Entrada());
+                    node_Entrada.addAttribute("ui.label", temp.getCiudad_Entrada());
+                }else{
+                    node_Entrada = rutas.getNode(temp.getCiudad_Entrada());
+                }
+                if(rutas.getEdge(node_Salida.getId()+node_Entrada.getId())==null){
+                    rutas.addEdge(node_Salida.getId()+node_Entrada.getId(), node_Salida, node_Entrada, true);
+                    rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
+                            " PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
+                }   
+            } catch (Exception e) {
+            }
+
+        }//fin for e
+        JOptionPane.showMessageDialog(this, "Se han creado las rutas exitosamente");
+        //Make Enabled los botones y combo box
+        this.VerRutas.setEnabled(true);
+        this.CargarVuelos.setEnabled(false);
+        this.b_VueloBarato.setEnabled(true);
+        this.b_VueloCorto.setEnabled(true);
+        this.cb_CiudadEntrada.setEnabled(true);
+        this.cb_CiudadSalida.setEnabled(true);
+    }//GEN-LAST:event_CargarVuelosActionPerformed
+
+    private void VerRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VerRutasActionPerformed
+        // TODO add your handling code here:
+        Viewer viewer = rutas.display();
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+    }//GEN-LAST:event_VerRutasActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -185,7 +276,7 @@ public class Main extends javax.swing.JFrame {
      * Grafo principal Inicializacion
      */
     Graph rutas = new SingleGraph("Rutas Aereas");
-    
+    ArrayList<Vuelo> Lista_Vuelos = new ArrayList();
 
 
 }

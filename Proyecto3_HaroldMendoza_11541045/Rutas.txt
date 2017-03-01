@@ -108,7 +108,7 @@ LON,ZHR,Lufhthansa,432.55,700.33
 LON,TXL,Lufhthansa,432.33,600.33
 LON,FLR,Air France,753.33,700.22
 LON,DME,Air France,800.23,943.33
-LON,NRT, All Nippon Airways,706.44,8650.33
+LON,NRT,All Nippon Airways,706.44,8650.33
 ZHR,MAD,Lufhthansa,340.33,1200.33
 MAD,LON,Air France,632.33,600.33
 MAD,CDG,Air France,640.33,543.33
