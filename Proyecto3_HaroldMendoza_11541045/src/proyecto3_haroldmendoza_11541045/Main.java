@@ -14,7 +14,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.JOptionPane;
+import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.*;
+import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
 
@@ -64,19 +66,30 @@ public class Main extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Ciudad de Salida:");
+        jLabel1.setText("TO:");
 
-        jLabel2.setText("Ciudad de Entrada:");
+        jLabel2.setText("FROM:");
 
         b_VueloCorto.setText("Vuelo mas Corto");
         b_VueloCorto.setAutoscrolls(true);
         b_VueloCorto.setEnabled(false);
+        b_VueloCorto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b_VueloCortoActionPerformed(evt);
+            }
+        });
 
         b_VueloBarato.setText("Vuelo mas Barato");
         b_VueloBarato.setEnabled(false);
+        b_VueloBarato.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b_VueloBaratoActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Busqueda de Vuelo:");
 
+        cb_CiudadEntrada.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
         cb_CiudadEntrada.setEnabled(false);
         cb_CiudadEntrada.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -84,6 +97,7 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        cb_CiudadSalida.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " " }));
         cb_CiudadSalida.setEnabled(false);
         cb_CiudadSalida.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -125,7 +139,7 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(cb_CiudadSalida, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
@@ -135,7 +149,7 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(b_VueloCorto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(b_VueloBarato, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
-                .addContainerGap(170, Short.MAX_VALUE))
+                .addContainerGap(241, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel3)
@@ -209,13 +223,9 @@ public class Main extends javax.swing.JFrame {
                     node_Entrada = rutas.getNode(temp.getCiudad_Entrada());
                 }
                 if(rutas.getEdge(node_Salida.getId()+node_Entrada.getId())==null){
-                    rutas.addEdge(node_Salida.getId()+node_Entrada.getId(), node_Salida, node_Entrada, true);
+                    rutas.addEdge(node_Salida.getId()+node_Entrada.getId(), node_Salida, node_Entrada, true).addAttribute("Distancia", temp.getDistancia());
+                    rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("Costo", temp.getCosto());
                     rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
-                            " PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
-                } 
-                if(rutas.getEdge(node_Entrada.getId()+node_Salida.getId())==null){
-                    rutas.addEdge(node_Entrada.getId()+node_Salida.getId(), node_Entrada, node_Salida, true);
-                    rutas.getEdge(node_Entrada.getId()+node_Salida.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
                             " PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
                 } 
             } catch (Exception e) {
@@ -252,8 +262,15 @@ public class Main extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (evt.getStateChange() == 2) {
             String s =  (String) cb_CiudadSalida.getSelectedItem();
-            nodoC1 = rutas.getNode(s);
-            verificarCiudades();
+            
+            if(cb_CiudadSalida.getSelectedIndex()!=0){//verificar que no sea el espacio vacio
+                nodoC1 = rutas.getNode(s);
+                verificarCiudades();
+            }else{
+                b_VueloBarato.setEnabled(false);
+                b_VueloCorto.setEnabled(false);
+            }
+            
         }
     }//GEN-LAST:event_cb_CiudadSalidaItemStateChanged
 
@@ -261,10 +278,75 @@ public class Main extends javax.swing.JFrame {
         // TODO add your handling code here:
         if (evt.getStateChange() == 2) {
             String s =  (String) cb_CiudadEntrada.getSelectedItem();
-            nodoC2 = rutas.getNode(s);
-            verificarCiudades();
+            
+            if(cb_CiudadEntrada.getSelectedIndex()!=0){ //verificar que no sea el espacio vacio
+                nodoC2 = rutas.getNode(s);
+                verificarCiudades();
+            }else{
+                b_VueloBarato.setEnabled(false);
+                b_VueloCorto.setEnabled(false);
+            }
         }
     }//GEN-LAST:event_cb_CiudadEntradaItemStateChanged
+
+    private void b_VueloCortoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_VueloCortoActionPerformed
+        // TODO add your handling code here:
+        
+        Graph grafo_distancia = new SingleGraph("Distancia mas Corta");
+        
+        Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "Distancia");
+        dijkstra.init(rutas);
+        dijkstra.setSource(nodoC1);
+        dijkstra.compute();
+        Path distancia = dijkstra.getPath(nodoC2);
+        
+        grafo_distancia.setStrict(false);
+        grafo_distancia.setAutoCreate(false);
+        
+        for (Edge temp : distancia.getEdgePath()) {
+            Node n_salida = temp.getNode1();
+            Node n_entrada = temp.getOpposite(n_salida);
+            grafo_distancia.addNode(n_salida.getId()).addAttribute("ui.label", n_salida.getId());
+            grafo_distancia.addNode(n_entrada.getId()).addAttribute("ui.label", n_entrada.getId());
+            grafo_distancia.addEdge(n_entrada.getId()+n_salida.getId(), n_entrada.getId(), n_salida.getId(), true).addAttribute("ui.label",
+                    "Distancia: "+temp.getAttribute("Distancia"));
+            
+                    
+        }
+        Viewer viewer = grafo_distancia.display();
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+        
+                
+        
+        
+    }//GEN-LAST:event_b_VueloCortoActionPerformed
+
+    private void b_VueloBaratoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_VueloBaratoActionPerformed
+        // TODO add your handling code here:
+         Graph grafo_distancia = new SingleGraph("Vuelo mas Corto");
+        
+        Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "Costo");
+        dijkstra.init(rutas);
+        dijkstra.setSource(nodoC1);
+        dijkstra.compute();
+        Path distancia = dijkstra.getPath(nodoC2);
+        
+        grafo_distancia.setStrict(false);
+        grafo_distancia.setAutoCreate(false);
+        
+        for (Edge temp : distancia.getEdgePath()) {
+            Node n_salida = temp.getNode1();
+            Node n_entrada = temp.getOpposite(n_salida);
+            grafo_distancia.addNode(n_salida.getId()).addAttribute("ui.label", n_salida.getId());
+            grafo_distancia.addNode(n_entrada.getId()).addAttribute("ui.label", n_entrada.getId());
+            grafo_distancia.addEdge(n_entrada.getId()+n_salida.getId(), n_entrada.getId(), n_salida.getId(), true).addAttribute("ui.label",
+                    "Costo: "+temp.getAttribute("Costo"));
+            
+                    
+        }
+        Viewer viewer = grafo_distancia.display();
+        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+    }//GEN-LAST:event_b_VueloBaratoActionPerformed
 
     /**
      * @param args the command line arguments
