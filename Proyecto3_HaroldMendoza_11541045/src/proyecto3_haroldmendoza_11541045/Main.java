@@ -267,6 +267,7 @@ public class Main extends javax.swing.JFrame {
                 nodoC1 = rutas.getNode(s);
                 verificarCiudades();
             }else{
+                nodoC1=null;
                 b_VueloBarato.setEnabled(false);
                 b_VueloCorto.setEnabled(false);
             }
@@ -283,6 +284,7 @@ public class Main extends javax.swing.JFrame {
                 nodoC2 = rutas.getNode(s);
                 verificarCiudades();
             }else{
+                nodoC2=null;
                 b_VueloBarato.setEnabled(false);
                 b_VueloCorto.setEnabled(false);
             }
