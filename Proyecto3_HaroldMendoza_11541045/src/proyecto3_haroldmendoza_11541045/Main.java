@@ -16,7 +16,6 @@ import java.util.Scanner;
 import javax.swing.JOptionPane;
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.*;
-import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
 
@@ -183,7 +182,7 @@ public class Main extends javax.swing.JFrame {
     private void CargarVuelosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CargarVuelosActionPerformed
         // TODO add your handling code here:
         Scanner sc = null; 
-        File archivo = new File("./Rutas.txt");
+        File archivo = new File("./Rutas.txt"); //Se lee el archivo de texto con las rutas aereas
         try {
             sc = new Scanner(archivo); 
             String line;
@@ -193,7 +192,7 @@ public class Main extends javax.swing.JFrame {
                     Scanner sc2 = new Scanner(line);
                     sc2.useDelimiter(",");
                     while(sc2.hasNext()){
-                        Lista_Vuelos.add(new Vuelo(sc2.next(),sc2.next(),sc2.next(),sc2.next(), sc2.next()));
+                        Lista_Vuelos.add(new Vuelo(sc2.next(),sc2.next(),sc2.next(),sc2.next(), sc2.next())); //guardar las rutas en un arrayList de Vuelos
                        System.out.println(Lista_Vuelos.get(Lista_Vuelos.size()-1).toString());
                     } // fin while interno  
                 } catch (Exception e) {
@@ -209,20 +208,20 @@ public class Main extends javax.swing.JFrame {
             Node node_Entrada=null;
             try {
                 if(rutas.getNode(temp.getCiudad_Salida())==null){
-                    rutas.addNode(temp.getCiudad_Salida());
+                    rutas.addNode(temp.getCiudad_Salida()); //se agrega la ciudad desalida al grafo
                     node_Salida = rutas.getNode(temp.getCiudad_Salida());
                     node_Salida.addAttribute("ui.label", temp.getCiudad_Salida());
                 }else{
                     node_Salida = rutas.getNode(temp.getCiudad_Salida());
                 }
                 if(rutas.getNode(temp.getCiudad_Entrada())==null){
-                    rutas.addNode(temp.getCiudad_Entrada());
+                    rutas.addNode(temp.getCiudad_Entrada()); //se agrega la ciudad de entrada al grafo
                     node_Entrada = rutas.getNode(temp.getCiudad_Entrada());
                     node_Entrada.addAttribute("ui.label", temp.getCiudad_Entrada());
                 }else{
                     node_Entrada = rutas.getNode(temp.getCiudad_Entrada());
                 }
-                if(rutas.getEdge(node_Salida.getId()+node_Entrada.getId())==null){
+                if(rutas.getEdge(node_Salida.getId()+node_Entrada.getId())==null){ // se agregan los edges 
                     rutas.addEdge(node_Salida.getId()+node_Entrada.getId(), node_Salida, node_Entrada, true).addAttribute("Distancia", temp.getDistancia());
                     rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("Costo", temp.getCosto());
                     rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
@@ -233,13 +232,13 @@ public class Main extends javax.swing.JFrame {
 
         }//fin for e
         JOptionPane.showMessageDialog(this, "Se han creado las rutas exitosamente");
-        //Make Enabled los botones y combo box
+        //Hacer "Enabled" los botones y combo box
         this.VerRutas.setEnabled(true);
         this.CargarVuelos.setEnabled(false);
         this.cb_CiudadEntrada.setEnabled(true);
         this.cb_CiudadSalida.setEnabled(true);
         
-        for (Vuelo temp : Lista_Vuelos) {
+        for (Vuelo temp : Lista_Vuelos) { // se guardan las ciudades (no repetidas) en el arraylist para despues usarlas en el combo box
             if(!Lista_Ciudades.contains(temp.getCiudad_Salida())){
                 Lista_Ciudades.add(temp.getCiudad_Salida());
             }else if(!Lista_Ciudades.contains(temp.getCiudad_Entrada())){
@@ -254,7 +253,7 @@ public class Main extends javax.swing.JFrame {
 
     private void VerRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VerRutasActionPerformed
         // TODO add your handling code here:
-        Viewer viewer = rutas.display();
+        Viewer viewer = rutas.display(); //display el grafo
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
     }//GEN-LAST:event_VerRutasActionPerformed
 
@@ -266,7 +265,7 @@ public class Main extends javax.swing.JFrame {
             if(cb_CiudadSalida.getSelectedIndex()!=0){//verificar que no sea el espacio vacio
                 nodoC1 = rutas.getNode(s);
                 verificarCiudades();
-            }else{
+            }else{ //si se escogee el espacio en blanco, se bloquean los botones
                 nodoC1=null;
                 b_VueloBarato.setEnabled(false);
                 b_VueloCorto.setEnabled(false);
@@ -283,7 +282,7 @@ public class Main extends javax.swing.JFrame {
             if(cb_CiudadEntrada.getSelectedIndex()!=0){ //verificar que no sea el espacio vacio
                 nodoC2 = rutas.getNode(s);
                 verificarCiudades();
-            }else{
+            }else{ //si se escogee el espacio en blanco, se bloquean los botones
                 nodoC2=null;
                 b_VueloBarato.setEnabled(false);
                 b_VueloCorto.setEnabled(false);
@@ -293,8 +292,12 @@ public class Main extends javax.swing.JFrame {
 
     private void b_VueloCortoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_VueloCortoActionPerformed
         // TODO add your handling code here:
-        
-        Graph grafo_distancia = new SingleGraph("Distancia mas Corta");
+        /**
+         * Aqui se calcula el vuelo mas corto usando el dijsktra que viene 
+         * incluido en el Graph Stream
+         * Codigo de la implementacion obtenido de la pagina principal de Graph Stream
+         */
+        Graph grafo_distancia = new SingleGraph("Distancia mas Corta"); //nuevo grafo para display rutas mas corta
         
         Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "Distancia");
         dijkstra.init(rutas);
@@ -325,7 +328,12 @@ public class Main extends javax.swing.JFrame {
 
     private void b_VueloBaratoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_VueloBaratoActionPerformed
         // TODO add your handling code here:
-         Graph grafo_distancia = new SingleGraph("Vuelo mas Corto");
+        /**
+         * Aqui se calcula el vuelo mas barato usando el dijsktra que viene 
+         * incluido en el Graph Stream
+         * Codigo de la implementacion obtenido de la pagina principal de Graph Stream
+         */
+         Graph grafo_distancia = new SingleGraph("Vuelo mas Barato"); //nuevo grafo para  display ruta mas barata
         
         Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "Costo");
         dijkstra.init(rutas);
@@ -402,14 +410,16 @@ public class Main extends javax.swing.JFrame {
     /**
      * Grafo principal Inicializacion
      */
-    Graph rutas = new SingleGraph("Rutas Aereas");
-    ArrayList<Vuelo> Lista_Vuelos = new ArrayList();
-    ArrayList<String> Lista_Ciudades = new ArrayList();
-    
+    Graph rutas = new SingleGraph("Rutas Aereas"); //grafo principal
+    ArrayList<Vuelo> Lista_Vuelos = new ArrayList(); //arraylist de todos los vuelos
+    ArrayList<String> Lista_Ciudades = new ArrayList(); //arraylist de las ciudades
+    /*
+        Aqui se guardan los nodos (ciudades) que escoge el usuario
+    */
     Node nodoC1=null;
     Node nodoC2=null;
     
-    public void verificarCiudades(){
+    public void verificarCiudades(){ //se verifica que las ciudades no esten repetidas
         if(nodoC1!=null && nodoC2!=null){
             if(nodoC1!=nodoC2){
                 this.b_VueloBarato.setEnabled(true);
