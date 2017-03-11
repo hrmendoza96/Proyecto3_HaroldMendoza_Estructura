@@ -12,6 +12,8 @@ package proyecto3_haroldmendoza_11541045;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Scanner;
 import javax.swing.JOptionPane;
 import org.graphstream.algorithm.Dijkstra;
@@ -245,6 +247,7 @@ public class Main extends javax.swing.JFrame {
                 Lista_Ciudades.add(temp.getCiudad_Entrada());
             }  
         }
+        Collections.sort(Lista_Ciudades);
         for (String temp : Lista_Ciudades) { //agregar lista de ciudades al combo box
             cb_CiudadSalida.addItem(temp);
             cb_CiudadEntrada.addItem(temp);
@@ -314,8 +317,7 @@ public class Main extends javax.swing.JFrame {
             grafo_distancia.addNode(n_salida.getId()).addAttribute("ui.label", n_salida.getId());
             grafo_distancia.addNode(n_entrada.getId()).addAttribute("ui.label", n_entrada.getId());
             grafo_distancia.addEdge(n_entrada.getId()+n_salida.getId(), n_entrada.getId(), n_salida.getId(), true).addAttribute("ui.label",
-                    "Distancia: "+temp.getAttribute("Distancia"));
-            
+                    "Distancia: "+temp.getAttribute("Distancia"));        
                     
         }
         Viewer viewer = grafo_distancia.display();
