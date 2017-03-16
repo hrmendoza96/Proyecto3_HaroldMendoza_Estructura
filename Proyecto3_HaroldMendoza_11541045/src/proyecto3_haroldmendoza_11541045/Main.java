@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 
 public class Main extends javax.swing.JFrame {
@@ -195,7 +196,7 @@ public class Main extends javax.swing.JFrame {
                     sc2.useDelimiter(",");
                     while(sc2.hasNext()){
                         Lista_Vuelos.add(new Vuelo(sc2.next(),sc2.next(),sc2.next(),sc2.next(), sc2.next())); //guardar las rutas en un arrayList de Vuelos
-                       System.out.println(Lista_Vuelos.get(Lista_Vuelos.size()-1).toString());
+                      // System.out.println(Lista_Vuelos.get(Lista_Vuelos.size()-1).toString());
                     } // fin while interno  
                 } catch (Exception e) {
                     System.out.println("Error while interno");
@@ -226,9 +227,31 @@ public class Main extends javax.swing.JFrame {
                 if(rutas.getEdge(node_Salida.getId()+node_Entrada.getId())==null){ // se agregan los edges 
                     rutas.addEdge(node_Salida.getId()+node_Entrada.getId(), node_Salida, node_Entrada, true).addAttribute("Distancia", temp.getDistancia());
                     rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("Costo", temp.getCosto());
-                    rutas.getEdge(node_Salida.getId()+node_Entrada.getId()).addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+
-                            " PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
+                    rutas.getEdge(node_Salida.getId()+node_Entrada.getId());
+                    //addAttribute("ui.label","DISTANCE: "+ Double.toString(temp.getDistancia())+" PRICE: "+ Double.toString(temp.getCosto())+" AIRLINE: "+ temp.getAerolinea());
                 } 
+                
+                
+                //rutas.addAttribute("ui.stylesheet", "graph { fill-color: rgb(0,0,0); }");
+                rutas.addAttribute("ui.quality");
+                rutas.addAttribute("ui.antialias");
+                for (Node temp2 : rutas.getEachNode()) {
+                    temp2.addAttribute("ui.style", "fill-color: rgb(107,142,35);size:10px,10px;text-color: rgb(0,0,0);");
+ 
+                }
+                for (Edge edge : rutas.getEachEdge()) {
+                    edge.addAttribute("ui.style", "fill-color: rgb(47,79,79); text-color:  rgb(112,128,144);");
+                
+                }
+                /*
+                for (int i = 0; i < rutas.getEdgeCount() ; i++) {
+                    Edge edge = rutas.getEdge(i);
+                    System.out.println(i+"-"+edge.getNode0()+"-"+edge.getNode1());
+                }
+                */
+                
+                
+                
             } catch (Exception e) {
             }
 
@@ -257,6 +280,10 @@ public class Main extends javax.swing.JFrame {
     private void VerRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VerRutasActionPerformed
         // TODO add your handling code here:
         Viewer viewer = rutas.display(); //display el grafo
+        View view = viewer.getDefaultView();
+        //view.getCamera().setViewCenter(2, 3, 2);
+       // view.getCamera().setViewPercent(0.5);
+        
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
     }//GEN-LAST:event_VerRutasActionPerformed
 
@@ -317,9 +344,19 @@ public class Main extends javax.swing.JFrame {
             grafo_distancia.addNode(n_salida.getId()).addAttribute("ui.label", n_salida.getId());
             grafo_distancia.addNode(n_entrada.getId()).addAttribute("ui.label", n_entrada.getId());
             grafo_distancia.addEdge(n_entrada.getId()+n_salida.getId(), n_entrada.getId(), n_salida.getId(), true).addAttribute("ui.label",
-                    "Distancia: "+temp.getAttribute("Distancia"));        
+                    "Distancia: "+temp.getAttribute("Distancia")+ " km");        
                     
         }
+        grafo_distancia.addAttribute("ui.quality");
+                grafo_distancia.addAttribute("ui.antialias");
+                for (Node temp2 : grafo_distancia.getEachNode()) {
+                    temp2.addAttribute("ui.style", "fill-color: rgb(107,142,35);size:10px,10px;text-color: rgb(0,0,0);");
+ 
+                }
+                for (Edge edge : grafo_distancia.getEachEdge()) {
+                    edge.addAttribute("ui.style", "fill-color: rgb(47,79,79); text-color:  rgb(0,0,0);");
+                
+                }
         Viewer viewer = grafo_distancia.display();
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
         
@@ -352,10 +389,21 @@ public class Main extends javax.swing.JFrame {
             grafo_distancia.addNode(n_salida.getId()).addAttribute("ui.label", n_salida.getId());
             grafo_distancia.addNode(n_entrada.getId()).addAttribute("ui.label", n_entrada.getId());
             grafo_distancia.addEdge(n_entrada.getId()+n_salida.getId(), n_entrada.getId(), n_salida.getId(), true).addAttribute("ui.label",
-                    "Costo: "+temp.getAttribute("Costo"));
+                    "Costo: $"+temp.getAttribute("Costo"));
             
                     
         }
+        grafo_distancia.addAttribute("ui.quality");
+                grafo_distancia.addAttribute("ui.antialias");
+                for (Node temp2 : grafo_distancia.getEachNode()) {
+                    temp2.addAttribute("ui.style", "fill-color: rgb(107,142,35);size:10px,10px;text-color: rgb(0,0,0);");
+ 
+                }
+                for (Edge edge : grafo_distancia.getEachEdge()) {
+                    edge.addAttribute("ui.style", "fill-color: rgb(47,79,79); text-color:  rgb(0,0,0);");
+                
+                }
+                
         Viewer viewer = grafo_distancia.display();
         viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
     }//GEN-LAST:event_b_VueloBaratoActionPerformed
